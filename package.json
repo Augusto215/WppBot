@@ -2,10 +2,10 @@
   "name": "bot-zdg",
   "version": "1.0.0",
   "description": "bot-zdg: based on Whatsapp API",
-  "main": "app.js",
+  "main": "botzdg_location.js",
   "scripts": {
     "start": "node botzdg_location.js",
-    "start:dev": "nodemon app.js",
+    "start:dev": "nodemon botzdg_location.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
