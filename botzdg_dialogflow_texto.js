@@ -10,22 +10,10 @@ const port = process.env.PORT || 8000;
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
-const {WebhookClient} = require('dialogflow-fulfillment');
 const dialogflow = require('@google-cloud/dialogflow');
 const sessionClient = new dialogflow.SessionsClient({keyFilename: 'alphabot-oijq-6b10175b9cfe.json'});
 
 let botActiveInChats = {};
-
-app.post('/webhook', function(request,response){
-  const agent = new WebhookClient ({ request, response });
-
-  let intentMap = new Map();
-  intentMap.set('nomedaintencao', nomedafuncao)
-  agent.handleRequest(intentMap);
-});
-
-function nomedafuncao (agent) {
-}
 
 function isBlank(str) {
   return (!str || /^\s*$/.test(str));
@@ -202,6 +190,31 @@ client.on('message', async msg => {
   }
 });
 
+app.post('/sendMessage', [
+  body('number').notEmpty().withMessage('Número é necessário'),
+  body('message').notEmpty().withMessage('Mensagem é necessária')
+], async (req, res) => {
+  const errors = validationResult(req).array();
+  const number = req.body.number;
+  const message = req.body.message;
+
+  if (errors.length > 0) {
+    const alert = errors.map(error => `[${error.param}]: ${error.msg}`);
+    return res.status(422).jsonp(alert);
+  }
+
+  const numberWhitCountryCode = number.replace('@c.us', '');
+  const isRegisteredNumber = await client.isRegisteredUser(numberWhitCountryCode+'@c.us');
+
+  if (!isRegisteredNumber) {
+    return res.status(422).send({ message: "O número não está registrado" });
+  }
+
+  client.sendMessage(numberWhitCountryCode+'@c.us', message);
+
+  res.status(200).send({message: 'Mensagem enviada com sucesso'});
+});
+
 server.listen(port, function() {
-  console.log('App running on *: ' + port);
+  console.log('© BOT-ZDG funcionando na porta: ' + port);
 });
