@@ -2,10 +2,10 @@
   "name": "bot-zdg",
   "version": "1.0.0",
   "description": "bot-zdg: based on Whatsapp API",
-  "main": "botzdg_location.js",
+  "main": "botzdg_dialogflow_texto.js",
   "scripts": {
-    "start": "node botzdg_location.js",
-    "start:dev": "nodemon botzdg_location.js",
+    "start": "node botzdg_dialogflow_texto.js",
+    "start:dev": "nodemon botzdg_dialogflow_texto.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
