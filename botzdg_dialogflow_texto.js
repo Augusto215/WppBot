@@ -88,7 +88,7 @@ app.get('/', (req, res) => {
 });
 
 const client = new Client({
-  authStrategy: new LocalAuth({ clientId: 'nick-true' }),
+  authStrategy: new LocalAuth({ clientId: 'nickkk' }),
   puppeteer: { 
     headless: true,
     args: [
