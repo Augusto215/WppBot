@@ -6,7 +6,7 @@ const qrcode = require('qrcode');
 const http = require('http');
 const fileUpload = require('express-fileupload');
 const axios = require('axios');
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 10000;
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
@@ -88,7 +88,7 @@ app.get('/', (req, res) => {
 });
 
 const client = new Client({
-  authStrategy: new LocalAuth({ clientId: 'nickkk' }),
+  authStrategy: new LocalAuth({ clientId: 'nic' }),
   puppeteer: { 
     headless: true,
     args: [
@@ -150,6 +150,14 @@ io.on('connection', function(socket) {
 client.on('message', async msg => {
   console.log('Mensagem recebida', msg);
 
+  if (msg.from === '5527995271631@c.us') {
+    if (msg.body === '!desativar') {
+      botActiveInChats[msg.to] = false;
+      await msg.reply('Bot desativado para este chat!');
+      return;
+    }
+  }
+
   if (msg.from.endsWith('@g.us')) {
     return;
   }
@@ -158,7 +166,6 @@ client.on('message', async msg => {
     botActiveInChats[msg.from] = false;
     await client.sendMessage(msg.from, `Entendido! Você será redirecionado para um de nossos atendentes😊(Bot Desativado)`);
     return;
-
   } else if (msg.body === '!ativar') {
     await msg.reply('Bot - Ativado!');
     botActiveInChats[msg.from] = true;
@@ -199,22 +206,18 @@ app.post('/sendMessage', [
   const message = req.body.message;
 
   if (errors.length > 0) {
-    const alert = errors.map(error => `[${error.param}]: ${error.msg}`);
-    return res.status(422).jsonp(alert);
+    const alert = errors.map(error => error.msg);
+    return res.status(422).json({ 'error': alert });
   }
 
-  const numberWhitCountryCode = number.replace('@c.us', '');
-  const isRegisteredNumber = await client.isRegisteredUser(numberWhitCountryCode+'@c.us');
+  const numberWh = `${number}@c.us`;
+  const sendMsg = await client.sendMessage(numberWh, message);
 
-  if (!isRegisteredNumber) {
-    return res.status(422).send({ message: "O número não está registrado" });
+  if (sendMsg) {
+    return res.json({ 'status': 'Enviado!' });
   }
-
-  client.sendMessage(numberWhitCountryCode+'@c.us', message);
-
-  res.status(200).send({message: 'Mensagem enviada com sucesso'});
 });
 
 server.listen(port, function() {
-  console.log('© BOT-ZDG funcionando na porta: ' + port);
+  console.log('Servidor rodando na porta: ' + port);
 });
