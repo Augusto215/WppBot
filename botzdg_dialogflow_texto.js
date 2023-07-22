@@ -15,6 +15,17 @@ const sessionClient = new dialogflow.SessionsClient({keyFilename: 'alphabot-oijq
 
 let botActiveInChats = {};
 
+app.post('/webhook', function(request,response){
+  const agent = new WebhookClient ({ request, response });
+
+  let intentMap = new Map();
+  intentMap.set('nomedaintencao', nomedafuncao)
+  agent.handleRequest(intentMap);
+});
+
+function nomedafuncao (agent) {
+}
+
 function isBlank(str) {
   return (!str || /^\s*$/.test(str));
 }
@@ -88,7 +99,7 @@ app.get('/', (req, res) => {
 });
 
 const client = new Client({
-  authStrategy: new LocalAuth({ clientId: 'nick-cell2' }),
+  authStrategy: new LocalAuth({ clientId: 'nick-teste' }),
   puppeteer: { 
     headless: true,
     args: [
@@ -140,11 +151,10 @@ io.on('connection', function(socket) {
     console.log('© BOT-ZDG Status de conexão: ', state );
   });
 
-  client.on('disconnected', (reason) => {
-    socket.emit('message', '© BOT-ZDG Cliente desconectado!');
-    console.log('© BOT-ZDG Cliente desconectado', reason);
-    client.initialize();
-  });
+client.on('disconnected', (reason) => {
+  socket.emit('message', '© BOT-ZDG Cliente desconectado!');
+  console.log('© BOT-ZDG Cliente desconectado', reason);
+});
 });
 
 client.on('message', async msg => {
@@ -176,7 +186,7 @@ client.on('message', async msg => {
         for (const message of JSON.parse(textoResposta)) {
           try {
             const texto = JSON.stringify(message.text.text).replace('["', '').replace('"]', '');
-            msg.reply("*Nick-BOT:*\n" + texto.replace(/\\n/g, '\n'));
+            msg.reply("Nick-BOT:\n" + texto.replace(/\\n/g, '\n'));
           } catch (e) {
             console.log('Nick-BOT: error ' + e);
           }
@@ -190,31 +200,6 @@ client.on('message', async msg => {
   }
 });
 
-app.post('/sendMessage', [
-  body('number').notEmpty().withMessage('Número é necessário'),
-  body('message').notEmpty().withMessage('Mensagem é necessária')
-], async (req, res) => {
-  const errors = validationResult(req).array();
-  const number = req.body.number;
-  const message = req.body.message;
-
-  if (errors.length > 0) {
-    const alert = errors.map(error => `[${error.param}]: ${error.msg}`);
-    return res.status(422).jsonp(alert);
-  }
-
-  const numberWhitCountryCode = number.replace('@c.us', '');
-  const isRegisteredNumber = await client.isRegisteredUser(numberWhitCountryCode+'@c.us');
-
-  if (!isRegisteredNumber) {
-    return res.status(422).send({ message: "O número não está registrado" });
-  }
-
-  client.sendMessage(numberWhitCountryCode+'@c.us', message);
-
-  res.status(200).send({message: 'Mensagem enviada com sucesso'});
-});
-
 server.listen(port, function() {
-  console.log('© BOT-ZDG funcionando na porta: ' + port);
+  console.log('App running on *: ' + port);
 });
